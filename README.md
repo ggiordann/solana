@@ -1,12 +1,13 @@
-# Solana Constant-Product Slippage Backtest
+# Solana Slippage Backtest
 
-This repository supports the MATH 1020 report `ResearchPaper.tex`.
+This is the code I used for my MATH 1020 research paper on slippage in a Solana
+liquidity pool.
 
-The workflow uses public GeckoTerminal data for the Raydium SOL/USDC AMM v4 pool and asks a
-specific execution question: if a trader attempted to trade a fixed percentage of each hour's
-observed volume, how large would the constant-product slippage have been?
+The script uses public GeckoTerminal data for the Raydium SOL/USDC pool. It takes
+the hourly trading volume from 7 May 2026 to 20 May 2026 and checks how much
+slippage a constant-product pool would create for a few different trade sizes.
 
-## Main Command
+## How to run it
 
 Run from this directory:
 
@@ -14,14 +15,16 @@ Run from this directory:
 python3 scripts/run_slippage_backtest.py
 ```
 
-By default, the script uses the saved data set for 7 May 2026 through 20 May 2026. To fetch the
-same window again from GeckoTerminal, run:
+The saved data is already included, so the command should work without needing to
+download anything new.
+
+To fetch the same data window again from GeckoTerminal, run:
 
 ```bash
 python3 scripts/run_slippage_backtest.py --refresh
 ```
 
-## Outputs
+## What it creates
 
 - `data/geckoterminal_sol_usdc_ohlcv_2026-05-07_2026-05-20.csv`
 - `outputs/slippage_backtest.csv`
@@ -29,4 +32,4 @@ python3 scripts/run_slippage_backtest.py --refresh
 - `outputs/slippage_backtest_summary.txt`
 - `outputs/figures/slippage_backtest.png`
 
-The public GitHub repository is <https://github.com/ggiordann/solana>.
+The main figure from the paper is `outputs/figures/slippage_backtest.png`.

@@ -19,12 +19,14 @@ DATA_DIR = REPO_ROOT / "data"
 OUTPUT_DIR = REPO_ROOT / "outputs"
 FIGURE_DIR = OUTPUT_DIR / "figures"
 
+# GeckoTerminal identifies the Raydium SOL/USDC pool by this address.
 API_ROOT = "https://api.geckoterminal.com/api/v2"
 NETWORK = "solana"
 POOL_ADDRESS = "58oQChx4yWmvKdwLLZzBi4ChoCc2fqCUWBkwMihLYQo2"
 POOL_LABEL = "Raydium SOL/USDC AMM v4"
 GITHUB_URL = "https://github.com/ggiordann/solana"
 
+# This is the two-week window used in the paper.
 START_UTC = datetime(2026, 5, 7, tzinfo=timezone.utc)
 END_UTC = datetime(2026, 5, 20, 23, tzinfo=timezone.utc)
 FEE_RATE = 0.0025
@@ -32,6 +34,7 @@ PARTICIPATION_RATES = (0.01, 0.10, 0.50)
 
 
 def fetch_json(path: str, params: dict[str, str] | None = None) -> dict[str, Any]:
+    # Keep the API call in one place so the rest of the script can work with dictionaries.
     query = f"?{urllib.parse.urlencode(params)}" if params else ""
     request = urllib.request.Request(
         f"{API_ROOT}{path}{query}",
@@ -51,6 +54,7 @@ def as_float(value: Any) -> float:
 
 
 def percentile(values: list[float], p: float) -> float:
+    # Linear interpolation gives a smoother percentile than simply rounding to an index.
     ordered = sorted(values)
     if not ordered:
         return math.nan
@@ -64,15 +68,18 @@ def percentile(values: list[float], p: float) -> float:
 
 
 def curve_slippage_bps(relative_trade_size: float) -> float:
+    # For xy = k, curve slippage only depends on trade size relative to one pool side.
     return 1e4 * relative_trade_size / (1.0 + relative_trade_size)
 
 
 def fee_inclusive_cost_bps(relative_trade_size: float, fee_rate: float = FEE_RATE) -> float:
+    # Raydium's 0.25% fee is added here so it can be compared with curve-only slippage.
     gamma = 1.0 - fee_rate
     return 1e4 * (1.0 - gamma / (1.0 + gamma * relative_trade_size))
 
 
 def parse_pool_snapshot() -> dict[str, Any]:
+    # The reserve snapshot is used as a fixed depth benchmark for the replay.
     payload = fetch_json(f"/networks/{NETWORK}/pools/{POOL_ADDRESS}")
     attributes = payload["data"]["attributes"]
     reserve_usd = as_float(attributes["reserve_in_usd"])
@@ -89,6 +96,7 @@ def parse_pool_snapshot() -> dict[str, Any]:
 
 
 def parse_ohlcv_window() -> list[dict[str, Any]]:
+    # GeckoTerminal returns candles before a timestamp, so request just after the end of the window.
     before_timestamp = int((END_UTC + timedelta(hours=1)).timestamp())
     payload = fetch_json(
         f"/networks/{NETWORK}/pools/{POOL_ADDRESS}/ohlcv/hour",
@@ -146,6 +154,7 @@ def build_backtest_rows(ohlcv: list[dict[str, Any]], one_side_reserve_usd: float
     rows: list[dict[str, Any]] = []
     for candle in ohlcv:
         for participation in PARTICIPATION_RATES:
+            # A 10% participation trade means "trade 10% of that hour's observed volume".
             trade_usd = candle["volume_usd"] * participation
             relative_trade_size = trade_usd / one_side_reserve_usd
             rows.append(
@@ -164,6 +173,7 @@ def build_backtest_rows(ohlcv: list[dict[str, Any]], one_side_reserve_usd: float
 
 
 def aggregate_daily_ohlcv(ohlcv: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    # The figure uses daily candles so the price panel is readable in the paper.
     grouped: dict[str, list[dict[str, Any]]] = {}
     for row in ohlcv:
         day = row["timestamp_utc"][:10]
@@ -204,6 +214,7 @@ def scenario_stats(backtest_rows: list[dict[str, Any]], participation: float) ->
 
 def build_summary(pool: dict[str, Any], ohlcv: list[dict[str, Any]], backtest_rows: list[dict[str, Any]]) -> dict[str, Any]:
     volumes = [row["volume_usd"] for row in ohlcv]
+    # Store the key statistics used directly in the report text.
     scenario_summary = {
         f"{int(participation * 100)}pct_hourly_volume": scenario_stats(backtest_rows, participation)
         for participation in PARTICIPATION_RATES
@@ -285,6 +296,7 @@ def write_backtest_figure(path: Path, summary: dict[str, Any], ohlcv: list[dict[
     fig, axes = plt.subplots(2, 2, figsize=(13.2, 8.4), dpi=180)
     candle_ax, series_ax, hist_ax, stress_ax = axes.ravel()
 
+    # Panel 1: daily candles give the reader a quick view of the market over the sample.
     daily = aggregate_daily_ohlcv(ohlcv)
     max_volume = max(day["volume_usd"] for day in daily)
     price_min = min(day["low"] for day in daily)
@@ -301,6 +313,7 @@ def write_backtest_figure(path: Path, summary: dict[str, Any], ohlcv: list[dict[
     candle_ax.set_xticklabels([day["day"][5:] for day in daily[::2]])
     candle_ax.grid(color="#D7DEE6", linewidth=0.8, alpha=0.8)
 
+    # Panel 2: the same formula is replayed each hour for three trade-size assumptions.
     timestamps = [datetime.fromisoformat(row["timestamp_utc"]).replace(tzinfo=timezone.utc) for row in ohlcv]
     x_values = [(dt - START_UTC).total_seconds() / 86400.0 for dt in timestamps]
     for participation, colour, label in [
@@ -320,6 +333,7 @@ def write_backtest_figure(path: Path, summary: dict[str, Any], ohlcv: list[dict[
     series_ax.grid(color="#D7DEE6", linewidth=0.8, alpha=0.8)
     series_ax.legend(frameon=True, facecolor="white", edgecolor="#CCD3DA", fontsize=8, loc="upper left")
 
+    # Panel 3: the histogram shows how often the 10% case creates small or larger slippage.
     ten_pct = [
         row["curve_slippage_bps"]
         for row in backtest_rows
@@ -334,6 +348,7 @@ def write_backtest_figure(path: Path, summary: dict[str, Any], ohlcv: list[dict[
     hist_ax.grid(axis="y", color="#D7DEE6", linewidth=0.8, alpha=0.8)
     hist_ax.legend(frameon=True, facecolor="white", edgecolor="#CCD3DA", fontsize=8)
 
+    # Panel 4: fixed USD trades show how quickly costs rise as the trade gets larger.
     one_side = summary["one_side_reserve_usd_snapshot"]
     stress_usd = [100, 250, 500, 1_000, 2_500, 5_000, 10_000, 25_000, 50_000, 100_000, 250_000, 500_000]
     stress_curve = [curve_slippage_bps(value / one_side) for value in stress_usd]
@@ -367,6 +382,7 @@ def main() -> None:
     summary_path = OUTPUT_DIR / "slippage_backtest_summary"
     summary_json_path = summary_path.with_suffix(".json")
 
+    # Use the saved files by default so the result is reproducible without internet access.
     if args.refresh or not (ohlcv_path.exists() and backtest_path.exists() and summary_json_path.exists()):
         pool = parse_pool_snapshot()
         ohlcv = parse_ohlcv_window()
