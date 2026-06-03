@@ -1,0 +1,8 @@
+[project]
+name = "solana-cpmm-slippage-backtest"
+version = "0.1.0"
+description = "Historical constant-product slippage backtest for a Solana AMM research paper"
+requires-python = ">=3.10"
+dependencies = [
+    "matplotlib",
+]

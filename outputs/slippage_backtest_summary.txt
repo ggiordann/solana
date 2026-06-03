@@ -1,0 +1,16 @@
+source=GeckoTerminal public API
+github_url=https://github.com/ggiordann/solana
+pool=Raydium SOL/USDC AMM v4 (58oQChx4yWmvKdwLLZzBi4ChoCc2fqCUWBkwMihLYQo2)
+accessed_utc=2026-05-31T12:10:45+00:00
+window=2026-05-07T00:00:00+00:00 to 2026-05-20T23:00:00+00:00
+ohlcv_hours=336
+reserve_usd_snapshot=8990283.82
+one_side_reserve_usd_snapshot=4495141.91
+total_volume_usd=13765219.40
+median_hourly_volume_usd=32315.26
+p95_hourly_volume_usd=102282.37
+10pct_median_curve_slippage_bps=7.1838
+10pct_p95_curve_slippage_bps=22.7023
+50pct_median_curve_slippage_bps=35.8159
+50pct_p95_curve_slippage_bps=112.4899
+50pct_max_curve_slippage_bps=247.5822

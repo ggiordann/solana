@@ -1,0 +1,73 @@
+{
+  "accessed_utc": "2026-05-31T12:10:45+00:00",
+  "source": "GeckoTerminal public API",
+  "github_url": "https://github.com/ggiordann/solana",
+  "network": "solana",
+  "pool_name": "SOL / USDC",
+  "pool_label": "Raydium SOL/USDC AMM v4",
+  "pool_address": "58oQChx4yWmvKdwLLZzBi4ChoCc2fqCUWBkwMihLYQo2",
+  "reserve_usd_snapshot": 8990283.8167,
+  "one_side_reserve_usd_snapshot": 4495141.90835,
+  "base_token_price_usd_snapshot": 82.55315816633674,
+  "quote_token_price_usd_snapshot": 0.9898123664143775,
+  "volume_usd_h24_snapshot": 839783.499413367,
+  "fee_rate": 0.0025,
+  "start_utc": "2026-05-07T00:00:00+00:00",
+  "end_utc": "2026-05-20T23:00:00+00:00",
+  "ohlcv_hours": 336,
+  "daily_candles": 14,
+  "total_volume_usd": 13765219.395924212,
+  "median_hourly_volume_usd": 32315.256026287265,
+  "p95_hourly_volume_usd": 102282.37238383775,
+  "max_hourly_volume_usd": 228234.1398524096,
+  "scenario_summary": {
+    "1pct_hourly_volume": {
+      "median_trade_usd": 323.15256026287267,
+      "p95_trade_usd": 1022.8237238383775,
+      "max_trade_usd": 2282.341398524096,
+      "median_curve_slippage_bps": 0.7188412230592618,
+      "p95_curve_slippage_bps": 2.274880343824137,
+      "max_curve_slippage_bps": 5.0747745193300675,
+      "median_fee_inclusive_cost_bps": 25.715251638238623,
+      "p95_fee_inclusive_cost_bps": 27.263521447673803,
+      "max_fee_inclusive_cost_bps": 30.049438770264338
+    },
+    "10pct_hourly_volume": {
+      "median_trade_usd": 3231.525602628727,
+      "p95_trade_usd": 10228.237238383776,
+      "max_trade_usd": 22823.41398524096,
+      "median_curve_slippage_bps": 7.1837646425708535,
+      "p95_curve_slippage_bps": 22.702313592754017,
+      "max_curve_slippage_bps": 50.51701896074763,
+      "median_fee_inclusive_cost_bps": 32.14790355510144,
+      "p95_fee_inclusive_cost_bps": 47.58907214590741,
+      "max_fee_inclusive_cost_bps": 75.26538441165687
+    },
+    "50pct_hourly_volume": {
+      "median_trade_usd": 16157.628013143632,
+      "p95_trade_usd": 51141.186191918874,
+      "max_trade_usd": 114117.0699262048,
+      "median_curve_slippage_bps": 35.81590598672047,
+      "p95_curve_slippage_bps": 112.48985381983363,
+      "max_curve_slippage_bps": 247.58224795796332,
+      "median_fee_inclusive_cost_bps": 60.63736940239927,
+      "p95_fee_inclusive_cost_bps": 136.93125601228067,
+      "max_fee_inclusive_cost_bps": 271.3611327679888
+    }
+  },
+  "stress_test": {
+    "10000": {
+      "curve_slippage_bps": 22.19685906334187,
+      "fee_inclusive_cost_bps": 47.086136059106835
+    },
+    "100000": {
+      "curve_slippage_bps": 217.6211355263835,
+      "fee_inclusive_cost_bps": 241.54617123676837
+    },
+    "500000": {
+      "curve_slippage_bps": 1000.9725632903198,
+      "fee_inclusive_cost_bps": 1021.2232545885769
+    }
+  },
+  "reserve_note": "The pool reserve is a GeckoTerminal snapshot used as a fixed depth benchmark for the historical OHLCV backtest."
+}
